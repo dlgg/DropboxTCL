@@ -171,6 +171,10 @@ proc ::dropbox::account_quota { } { return [dict get [account_info] quota_info] 
 ###
 
 proc ::dropbox::shares { path {shorturl true} {root dropbox} } {
+  # Get a public link to share a folder/file.
+  #  path is the path to the folder/file relative to $root
+  #  shorturl is a boolean to use or not the url shortener of dropbox (db.tt)
+  #  root is the selected root : dropbox or sandbox
   if {[tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
   set url "$api/shares/$root/[url-encode $path]"
   set params [::http::formatQuery access_token $tok locale $locale short_url $shorturl]
