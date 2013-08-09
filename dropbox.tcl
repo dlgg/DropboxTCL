@@ -121,7 +121,7 @@ proc ::dropbox::authorize { token apikey apisecret } {
 ### Dropbox subroutines
 ### 
 proc ::dropbox::tokcheck {} {
-  if {} {
+  if {[string match [info exists tok] 0]} {
     return -code error
   } else {
     return
