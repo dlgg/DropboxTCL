@@ -98,6 +98,8 @@ proc ::dropbox::request_token { } {
 }
 
 proc ::dropbox::authorize { token apikey apisecret } {
+  # This will call the Dropbox API to authorize the token and get the access token.
+  # It will return the user Dropbox uid if all is OK.
   set url "$::dropbox::api/oauth2/token"
   set params [::http::formatQuery code $token grant_type authorization_code client_id $apikey client_secret $apisecret ]
   set t [::http::config -useragent $agent]
@@ -121,6 +123,7 @@ proc ::dropbox::authorize { token apikey apisecret } {
 ### Dropbox subroutines
 ### 
 proc ::dropbox::tokcheck {} {
+  # Return an error if we don't have an access token
   if {[string match [info exists tok] 0]} {
     return -code error
   } else {
@@ -131,8 +134,16 @@ proc ::dropbox::tokcheck {} {
 ###
 ### Dropbox Account
 ###
+# This will get informations about the account.
+# info will return a dict with all informations.
+# uid will return only the Dropbox user uid
+# country will return only the Dropbox user country
+# referral will return the referral link of the Dropbox user
+# name will return the full name of the Dropbox user
+# quota will return a list with the quota information of the Dropbox account (normal, shared and allocated)
+
 proc ::dropbox::account_info {  } {
-  if {[tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
+  if {[tokcheck]} { continue } else { return -code error "App is not authorized or no token exist." }
   set url "$api/account/info?access_token=$tok&locale=$locale"
   set t [::http::config -useragent $agent]
   set t [::http::geturl $url -timeout $timeout]
