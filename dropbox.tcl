@@ -40,6 +40,7 @@ namespace eval dropbox {
   variable api "https://api.dropbox.com/1"
   variable apic "https://api-content.dropbox.com/1"
   variable locale "fr"
+  variable db "dropbox.dat"
   variable tok; variable apikey; variable apisecret
 
   variable agent "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.1) Gecko/2008070208 Firefox/3.0.1"
@@ -96,6 +97,15 @@ proc ::dropbox::url-decode {string} {
     #::dropbox::authorize $code $::dropbox::apikey $::dropbox::apisecret
 
 proc ::dropbox::init { apikey apisecret } {
+proc ::dropbox::writeDB {  } {
+    set f [open $db w]
+    fconfigure $f -encoding utf-8
+    if {[info exists apikey]} { puts $f "apikey $apikey" }
+    if {[info exists apisecret]} { puts $f "apisecret $apisecret" }
+    if {[info exists tok]} { puts $f "tok $tok" }
+    close $f
+}
+
   # TODO : Check apikey and apisecret if they are good
   # TODO : 15 alphanum lower case
   variable apikey $apikey
