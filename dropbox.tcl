@@ -146,6 +146,11 @@ proc ::dropbox::authorize { token apikey apisecret } {
 proc ::dropbox::tokcheck {} {
   # Return an error if we don't have an access token
   if {[string match [info exists tok] 0]} {
+    # TODO : check if apikey and secret are present : 
+    #      :   NO -> call ::dropbox::init and recheck tok/key/secret. 
+    #      :     No tok/key/secret -> INIT error
+    #      :     No tok only -> call ::dropbox::request_token
+    #      :   YES -> call ::dropbox::request_token
     return -code error
   } else {
     return
