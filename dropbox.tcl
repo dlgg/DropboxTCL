@@ -81,7 +81,7 @@ proc ::dropbox::url-decode {string} {
 ### Dropbox OAuth v2
 ###
 # Some examples of code
-# first OAuth
+# first OAuth or security for always having the good key
     #::dropbox::init $KEY $SECRET
     #puts "Please go to [::dropbox::request_token $apikey]"
     #puts "authentify to your dropbox, authorize the app $APPNAME and enter here the auth code"
