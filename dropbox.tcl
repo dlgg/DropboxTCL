@@ -161,12 +161,12 @@ proc ::dropbox::tokcheck {} {
 ### Dropbox Account
 ###
 # This will get informations about the account.
-# info will return a dict with all informations.
-# uid will return only the Dropbox user uid
-# country will return only the Dropbox user country
-# referral will return the referral link of the Dropbox user
-# name will return the full name of the Dropbox user
-# quota will return a list with the quota information of the Dropbox account (normal, shared and allocated)
+# _info will return a dict with all informations.
+# _uid will return only the Dropbox user uid
+# _country will return only the Dropbox user country
+# _referral will return the referral link of the Dropbox user
+# _name will return the full name of the Dropbox user
+# _quota will return a list with the quota information of the Dropbox account (normal, shared and allocated)
 
 proc ::dropbox::account_info {  } {
   if {[tokcheck]} { continue } else { return -code error "App is not authorized or no token exist." }
