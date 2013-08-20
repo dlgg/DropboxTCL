@@ -96,7 +96,6 @@ proc ::dropbox::url-decode {string} {
     #set code [gets stdin]
     #::dropbox::authorize $code $::dropbox::apikey $::dropbox::apisecret
 
-proc ::dropbox::init { apikey apisecret } {
 proc ::dropbox::writeDB {  } {
     if {![file writable $db]} { if {[file exists $db]} { return -code error "$db is not writable. Please correct this." } }
     set f [open $db w]
@@ -108,10 +107,44 @@ proc ::dropbox::writeDB {  } {
     close $f
 }
 
+proc ::dropbox::init { {key load} {secret load} } {
   # TODO : Check apikey and apisecret if they are good
   # TODO : 15 alphanum lower case
-  variable apikey $apikey
-  variable apisecret $apisecret
+  # Load data
+  if {![file exists $db]} {
+    # No database present. Check if key and secret are given in parameters
+    if {[string equal $key "load"]} { return -code error "No database is present. You need to provide the key and secret." }
+    if {[string equal $secret "load"]} { return -code error "No database is present. You need to provide the key and secret." }
+    variable apikey $key
+    variable apisecret $secret
+    # Write variables to database
+    ::dropbox::writeDB
+  } else {
+    # Database exist. Check if it is readable and load parameters
+    set f [open $db r]
+    fconfigure $f -encoding utf-8
+    set content [read -nonewline $f]
+    close $f
+    foreach line [split $content "\n"] { lappend tmp([lindex $line 0]) [lindex $line 1] }
+    if {[info exists tmp(apikey)]} {
+      variable apikey $tmp(apikey)
+    } elseif {(![string equal $secret "load"]) && (![string equal $key "load"])} {
+      variable apikey $key
+      # Write variables to database
+      ::dropbox::writeDB
+    } else {
+      return -code error "Dropbox data corrupted !"
+    }
+    if {[info exists tmp(apisecret)]} {
+      variable apisecret $tmp(apisecret)
+    } elseif {(![string equal $secret "load"]) && (![string equal $key "load"])} {
+      variable apisecret $secret
+      # Write variables to database
+      ::dropbox::writeDB
+    } else {
+      return -code error "Dropbox data corrupted !"
+    }
+  }
   return
 }
 
@@ -137,6 +170,8 @@ proc ::dropbox::authorize { token apikey apisecret } {
   } else {
     variable tok [dict get $data access_token]
     variable uid [dict get $data uid]
+    # Write token to database
+    ::dropbox::writeDB
     return "$uid"
   }
 }
