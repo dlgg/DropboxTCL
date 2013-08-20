@@ -98,6 +98,7 @@ proc ::dropbox::url-decode {string} {
 
 proc ::dropbox::init { apikey apisecret } {
 proc ::dropbox::writeDB {  } {
+    if {![file writable $db]} { if {[file exists $db]} { return -code error "$db is not writable. Please correct this." } }
     set f [open $db w]
     fconfigure $f -encoding utf-8
     if {[info exists apikey]} { puts $f "apikey $apikey" }
