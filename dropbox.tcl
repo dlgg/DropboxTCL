@@ -41,7 +41,7 @@ namespace eval dropbox {
   variable apic "https://api-content.dropbox.com/1"
   variable locale "fr"
   variable db "dropbox.dat"
-  variable tok; variable apikey; variable apisecret
+  variable tok; variable apikey; variable apisecret; variable uid
 
   variable agent "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.1) Gecko/2008070208 Firefox/3.0.1"
   variable timeout 30000
@@ -104,6 +104,7 @@ proc ::dropbox::writeDB {  } {
     if {[info exists apikey]} { puts $f "apikey $apikey" }
     if {[info exists apisecret]} { puts $f "apisecret $apisecret" }
     if {[info exists tok]} { puts $f "tok $tok" }
+    if {[info exists uid]} { puts $f "uid $uid" }
     close $f
 }
 
@@ -135,7 +136,8 @@ proc ::dropbox::authorize { token apikey apisecret } {
     return -code error "Dropbox Error [dict get $data error] : [dict get $data error_description]"
   } else {
     variable tok [dict get $data access_token]
-    return [dict get $data uid]
+    variable uid [dict get $data uid]
+    return "$uid"
   }
 }
 
