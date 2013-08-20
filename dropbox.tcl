@@ -79,6 +79,12 @@ proc ::dropbox::url-decode {string} {
 ###
 ### Dropbox OAuth v2
 ###
+# Example of code
+  #puts "Please go to [::dropbox::request_token $apikey]"
+  #puts "authentify to your dropbox, authorize the app $APPNAME and enter here the auth code"
+  #puts "Authorization code : "
+  #set code [gets stdin]
+  #::dropbox::authorize $code $::dropbox::apikey $::dropbox::apisecret
 
 proc ::dropbox::init { apikey apisecret } {
   # TODO : Check apikey and apisecret if they are good
@@ -89,12 +95,6 @@ proc ::dropbox::init { apikey apisecret } {
 }
 
 proc ::dropbox::request_token { } {
-  # Example of code
-    #puts "Please go to [::dropbox::request_token $apikey]"
-    #puts "authentify to your dropbox, authorize the app $APPNAME and enter here the auth code"
-    #puts "Authorization code : "
-    #set code [gets stdin]
-    #::dropbox::authorize $code $::dropbox::apikey $::dropbox::apisecret
   return "https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=$apikey"
 }
 
