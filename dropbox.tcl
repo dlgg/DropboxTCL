@@ -41,6 +41,7 @@ namespace eval dropbox {
   variable apic "https://api-content.dropbox.com/1"
   variable locale "fr"
   variable db "dropbox.dat"
+  variable dateformat "%a, %d %b %Y %H:%M:%S %z"
   variable tok; variable apikey; variable apisecret; variable uid
 
   variable agent "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.1) Gecko/2008070208 Firefox/3.0.1"
