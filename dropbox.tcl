@@ -98,13 +98,13 @@ proc ::dropbox::url-decode {string} {
     #::dropbox::authorize $code $::dropbox::apikey $::dropbox::apisecret
 
 proc ::dropbox::writeDB {  } {
-    if {![file writable $db]} { if {[file exists $db]} { return -code error "$db is not writable. Please correct this." } }
-    set f [open $db w]
+    if {![file writable $::dropbox::db]} { if {[file exists $::dropbox::db]} { return -code error "$::dropbox::db is not writable. Please correct this." } }
+    set f [open $::dropbox::db w]
     fconfigure $f -encoding utf-8
-    if {[info exists apikey]} { puts $f "apikey $apikey" }
-    if {[info exists apisecret]} { puts $f "apisecret $apisecret" }
-    if {[info exists tok]} { puts $f "tok $tok" }
-    if {[info exists uid]} { puts $f "uid $uid" }
+    if {[info exists ::dropbox::apikey]}    { puts $f "apikey $::dropbox::apikey" }
+    if {[info exists ::dropbox::apisecret]} { puts $f "apisecret $::dropbox::apisecret" }
+    if {[info exists ::dropbox::tok]}       { puts $f "tok $::dropbox::tok" }
+    if {[info exists ::dropbox::uid]}       { puts $f "uid $::dropbox::uid" }
     close $f
 }
 
@@ -112,34 +112,34 @@ proc ::dropbox::init { {key load} {secret load} } {
   # TODO : Check apikey and apisecret if they are good
   # TODO : 15 alphanum lower case
   # Load data
-  if {![file exists $db]} {
+  if {![file exists $::dropbox::db]} {
     # No database present. Check if key and secret are given in parameters
     if {[string equal $key "load"]} { return -code error "No database is present. You need to provide the key and secret." }
     if {[string equal $secret "load"]} { return -code error "No database is present. You need to provide the key and secret." }
-    variable apikey $key
-    variable apisecret $secret
+    variable ::dropbox::apikey $key
+    variable ::dropbox::apisecret $secret
     # Write variables to database
     ::dropbox::writeDB
   } else {
     # Database exist. Check if it is readable and load parameters
-    set f [open $db r]
+    set f [open $::dropbox::db r]
     fconfigure $f -encoding utf-8
     set content [read -nonewline $f]
     close $f
     foreach line [split $content "\n"] { lappend tmp([lindex $line 0]) [lrange $line 1 end] }
     if {[info exists tmp(apikey)]} {
-      variable apikey $tmp(apikey)
+      variable ::dropbox::apikey $tmp(apikey)
     } elseif {(![string equal $secret "load"]) && (![string equal $key "load"])} {
-      variable apikey $key
+      variable ::dropbox::apikey $key
       # Write variables to database
       ::dropbox::writeDB
     } else {
       return -code error "Dropbox data corrupted !"
     }
     if {[info exists tmp(apisecret)]} {
-      variable apisecret $tmp(apisecret)
+      variable ::dropbox::apisecret $tmp(apisecret)
     } elseif {(![string equal $secret "load"]) && (![string equal $key "load"])} {
-      variable apisecret $secret
+      variable ::dropbox::apisecret $secret
       # Write variables to database
       ::dropbox::writeDB
     } else {
@@ -150,7 +150,7 @@ proc ::dropbox::init { {key load} {secret load} } {
 }
 
 proc ::dropbox::request_token { } {
-  return "https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=$apikey"
+  return "https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=$::dropbox::apikey"
 }
 
 proc ::dropbox::authorize { token apikey apisecret } {
@@ -158,8 +158,8 @@ proc ::dropbox::authorize { token apikey apisecret } {
   # It will return the user Dropbox uid if all is OK.
   set url "$::dropbox::api/oauth2/token"
   set params [::http::formatQuery code $token grant_type authorization_code client_id $apikey client_secret $apisecret ]
-  set t [::http::config -useragent $agent]
-  set t [::http::geturl $url -query $params -timeout $timeout]
+  set t [::http::config -useragent $::dropbox::agent]
+  set t [::http::geturl $url -query $params -timeout $::dropbox::timeout]
   set httpc [::http::ncode $t]
   set dataj [::http::data $t]
   ::http::cleanup $t
@@ -169,8 +169,8 @@ proc ::dropbox::authorize { token apikey apisecret } {
   } elseif { [dict exists $data error] } {
     return -code error "Dropbox Error [dict get $data error] : [dict get $data error_description]"
   } else {
-    variable tok [dict get $data access_token]
-    variable uid [dict get $data uid]
+    variable ::dropbox::tok [dict get $data access_token]
+    variable ::dropbox::uid [dict get $data uid]
     # Write token to database
     ::dropbox::writeDB
     return "$uid"
@@ -207,10 +207,10 @@ proc ::dropbox::tokcheck {} {
 # _quota will return a list with the quota information of the Dropbox account (normal, shared and allocated)
 
 proc ::dropbox::account_info {  } {
-  if {[tokcheck]} { continue } else { return -code error "App is not authorized or no token exist." }
-  set url "$api/account/info?access_token=$tok&locale=$locale"
-  set t [::http::config -useragent $agent]
-  set t [::http::geturl $url -timeout $timeout]
+  if {[::dropbox::tokcheck]} { continue } else { return -code error "App is not authorized or no token exist." }
+  set url "$::dropbox::api/account/info?access_token=$::dropbox::tok&locale=$::dropbox::locale"
+  set t [::http::config -useragent $::dropbox::agent]
+  set t [::http::geturl $url -timeout $::dropbox::timeout]
   set dataj [::http::data $t]
   set httpc [::http::ncode $t]
   set dataj [::http::data $t]
@@ -224,11 +224,11 @@ proc ::dropbox::account_info {  } {
     return $data
   }
 }
-proc ::dropbox::account_uid { } { return [dict get [account_info] uid] }
-proc ::dropbox::account_country { } { return [dict get [account_info] country] }
-proc ::dropbox::account_referral { } { return [dict get [account_info] referral_link] }
-proc ::dropbox::account_name { } { return [dict get [account_info] display_name] }
-proc ::dropbox::account_quota { } { return [dict get [account_info] quota_info] }
+proc ::dropbox::account_uid { }      { return [dict get [::dropbox::account_info] uid] }
+proc ::dropbox::account_country { }  { return [dict get [::dropbox::account_info] country] }
+proc ::dropbox::account_referral { } { return [dict get [::dropbox::account_info] referral_link] }
+proc ::dropbox::account_name { }     { return [dict get [::dropbox::account_info] display_name] }
+proc ::dropbox::account_quota { }    { return [dict get [::dropbox::account_info] quota_info] }
 
 ###
 ### Dropbox Files and Metadata
@@ -239,11 +239,11 @@ proc ::dropbox::shares { path {shorturl true} {root dropbox} } {
   #  path is the path to the folder/file relative to $root
   #  shorturl is a boolean to use or not the url shortener of dropbox (db.tt)
   #  root is the selected root : dropbox or sandbox
-  if {[tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
-  set url "$api/shares/$root/[url-encode $path]"
-  set params [::http::formatQuery access_token $tok locale $locale short_url $shorturl]
-  set t [::http::config -useragent $agent]
-  set t [::http::geturl $url -query $params -timeout $timeout]
+  if {[::dropbox::tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
+  set url "$::dropbox::api/shares/$root/[url-encode $path]"
+  set params [::http::formatQuery access_token $::dropbox::tok locale $::dropbox::locale short_url $shorturl]
+  set t [::http::config -useragent $::dropbox::agent]
+  set t [::http::geturl $url -query $params -timeout $::dropbox::timeout]
   set dataj [::http::data $t]
   set httpc [::http::ncode $t]
   set dataj [::http::data $t]
@@ -265,10 +265,10 @@ proc ::dropbox::shares { path {shorturl true} {root dropbox} } {
 ### Skeleton for GET and POST
 ###
 proc ::dropbox::skelG { } {
-  if {[tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
-  set url "$api/?access_token=$tok&locale=$locale"
-  set t [::http::config -useragent $agent]
-  set t [::http::geturl $url -timeout $timeout]
+  if {[::dropbox::tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
+  set url "$::dropbox::api/?access_token=$::dropbox::tok&locale=$::dropbox::locale"
+  set t [::http::config -useragent $::dropbox::agent]
+  set t [::http::geturl $url -timeout $::dropbox::timeout]
   set dataj [::http::data $t]
   set httpc [::http::ncode $t]
   set dataj [::http::data $t]
@@ -283,11 +283,11 @@ proc ::dropbox::skelG { } {
   }
 }
 proc ::dropbox::skelP { } {
-  if {[tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
-  set url "$api/"
-  set params [::http::formatQuery access_token $tok locale $locale]
-  set t [::http::config -useragent $agent]
-  set t [::http::geturl $url -query $params -timeout $timeout]
+  if {[::dropbox::tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
+  set url "$::dropbox::api/"
+  set params [::http::formatQuery access_token $::dropbox::tok locale $::dropbox::locale]
+  set t [::http::config -useragent $::dropbox::agent]
+  set t [::http::geturl $url -query $params -timeout $::dropbox::timeout]
   set dataj [::http::data $t]
   set httpc [::http::ncode $t]
   set dataj [::http::data $t]
