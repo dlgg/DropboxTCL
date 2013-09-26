@@ -126,7 +126,7 @@ proc ::dropbox::init { {key load} {secret load} } {
     fconfigure $f -encoding utf-8
     set content [read -nonewline $f]
     close $f
-    foreach line [split $content "\n"] { lappend tmp([lindex $line 0]) [lindex $line 1] }
+    foreach line [split $content "\n"] { lappend tmp([lindex $line 0]) [lrange $line 1 end] }
     if {[info exists tmp(apikey)]} {
       variable apikey $tmp(apikey)
     } elseif {(![string equal $secret "load"]) && (![string equal $key "load"])} {
