@@ -84,14 +84,14 @@ proc ::dropbox::url-decode {string} {
 # Some examples of code
 # first OAuth or security for always having the good key
     #::dropbox::init $KEY $SECRET
-    #puts "Please go to [::dropbox::request_token $apikey]"
+    #puts "Please go to [::dropbox::request_token]"
     #puts "authentify to your dropbox, authorize the app $APPNAME and enter here the auth code"
     #puts "Authorization code : "
     #set code [gets stdin]
     #::dropbox::authorize $code $::dropbox::apikey $::dropbox::apisecret
 # Invalid token / force regeneration of token
     #::dropbox::init
-    #puts "Please go to [::dropbox::request_token $apikey]"
+    #puts "Please go to [::dropbox::request_token]"
     #puts "authentify to your dropbox, authorize the app $APPNAME and enter here the auth code"
     #puts "Authorization code : "
     #set code [gets stdin]
