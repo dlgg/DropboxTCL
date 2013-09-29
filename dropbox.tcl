@@ -36,6 +36,7 @@ package provide dropbox 0.1
 namespace eval dropbox {
   namespace export url-encode url-decode
   variable version 0.1
+  variable debug 1
 
   variable api "https://api.dropbox.com/1"
   variable apic "https://api-content.dropbox.com/1"
@@ -47,6 +48,11 @@ namespace eval dropbox {
   variable agent "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru; rv:1.9.0.1) Gecko/2008070208 Firefox/3.0.1"
   variable timeout 30000
 }
+
+###
+### Debug proc
+###
+proc ::dropbox::dbg { msg } { if {$::dropbox::debug} {puts "== DropBox DEBUG == $msg"} }
 
 ###
 ### Some procs for url encoding/decoding
