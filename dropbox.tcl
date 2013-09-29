@@ -104,6 +104,7 @@ proc ::dropbox::url-decode {string} {
     #::dropbox::authorize $code $::dropbox::apikey $::dropbox::apisecret
 
 proc ::dropbox::writeDB {  } {
+    ::dropbox::dbg "Writing database"
     if {![file writable $::dropbox::db]} { if {[file exists $::dropbox::db]} { return -code error "$::dropbox::db is not writable. Please correct this." } }
     set f [open $::dropbox::db w]
     fconfigure $f -encoding utf-8
@@ -115,10 +116,12 @@ proc ::dropbox::writeDB {  } {
 }
 
 proc ::dropbox::init { {key load} {secret load} } {
+  ::dropbox::dbg "Initializing dropbox SDK"
   # TODO : Check apikey and apisecret if they are good
   # TODO : 15 alphanum lower case
   # Load data
   if {![file exists $::dropbox::db]} {
+    ::dropbox::dbg "dropbox.dat doesn't exist"
     # No database present. Check if key and secret are given in parameters
     if {[string equal $key "load"]} { return -code error "No database is present. You need to provide the key and secret." }
     if {[string equal $secret "load"]} { return -code error "No database is present. You need to provide the key and secret." }
@@ -128,6 +131,7 @@ proc ::dropbox::init { {key load} {secret load} } {
     ::dropbox::writeDB
   } else {
     # Database exist. Check if it is readable and load parameters
+    ::dropbox::dbg "dropbox.dat exist. Reading it."
     set f [open $::dropbox::db r]
     fconfigure $f -encoding utf-8
     set content [read -nonewline $f]
@@ -156,10 +160,12 @@ proc ::dropbox::init { {key load} {secret load} } {
 }
 
 proc ::dropbox::request_token { } {
+  ::dropbox::dbg "Requesting token"
   return "https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=$::dropbox::apikey"
 }
 
 proc ::dropbox::authorize { token apikey apisecret } {
+  ::dropbox::dbg "Authorizing SDK to dropbox"
   # This will call the Dropbox API to authorize the token and get the access token.
   # It will return the user Dropbox uid if all is OK.
   set url "$::dropbox::api/oauth2/token"
