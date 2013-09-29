@@ -218,7 +218,7 @@ proc ::dropbox::tokcheck { } {
 # _quota will return a list with the quota information of the Dropbox account (normal, shared and allocated)
 
 proc ::dropbox::account_info {  } {
-  if {[::dropbox::tokcheck]} { continue } else { return -code error "App is not authorized or no token exist." }
+  if {[::dropbox::tokcheck] != 0} { return -code error "App is not authorized or no token exist." }
   set url "$::dropbox::api/account/info?access_token=$::dropbox::tok&locale=$::dropbox::locale"
   set t [::http::config -useragent $::dropbox::agent]
   set t [::http::geturl $url -timeout $::dropbox::timeout]
@@ -250,7 +250,7 @@ proc ::dropbox::shares { path {shorturl true} {root dropbox} } {
   #  path is the path to the folder/file relative to $root
   #  shorturl is a boolean to use or not the url shortener of dropbox (db.tt)
   #  root is the selected root : dropbox or sandbox
-  if {[::dropbox::tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
+  if {[::dropbox::tokcheck] != 0} { return -code error "Token is not authorized or no token exist." }
   set url "$::dropbox::api/shares/$root/[url-encode $path]"
   set params [::http::formatQuery access_token $::dropbox::tok locale $::dropbox::locale short_url $shorturl]
   set t [::http::config -useragent $::dropbox::agent]
@@ -276,7 +276,7 @@ proc ::dropbox::shares { path {shorturl true} {root dropbox} } {
 ### Skeleton for GET and POST
 ###
 proc ::dropbox::skelG { } {
-  if {[::dropbox::tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
+  if {[::dropbox::tokcheck] != 0} { return -code error "Token is not authorized or no token exist." }
   set url "$::dropbox::api/?access_token=$::dropbox::tok&locale=$::dropbox::locale"
   set t [::http::config -useragent $::dropbox::agent]
   set t [::http::geturl $url -timeout $::dropbox::timeout]
@@ -294,7 +294,7 @@ proc ::dropbox::skelG { } {
   }
 }
 proc ::dropbox::skelP { } {
-  if {[::dropbox::tokcheck]} { continue } else { return -code error "Token is not authorized or no token exist." }
+  if {[::dropbox::tokcheck] != 0} { return -code error "Token is not authorized or no token exist." }
   set url "$::dropbox::api/"
   set params [::http::formatQuery access_token $::dropbox::tok locale $::dropbox::locale]
   set t [::http::config -useragent $::dropbox::agent]
