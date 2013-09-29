@@ -261,7 +261,7 @@ proc ::dropbox::shares { path {shorturl true} {root dropbox} } {
   }
 }
 
-proc ::dropbox::search { query {limit 1000} {deleted false} {root dropbox} } {
+proc ::dropbox::search { query {path /} {limit 1000} {deleted false} {root dropbox} } {
   if {[::dropbox::tokcheck] != 0} { return -code error "Token is not authorized or no token exist." }
   set url "$::dropbox::api/search/$root/[url-encode $path]"
   set params [::http::formatQuery access_token $::dropbox::tok locale $::dropbox::locale query $query file_limit $limit include_deleted $deleted]
@@ -282,17 +282,17 @@ proc ::dropbox::search { query {limit 1000} {deleted false} {root dropbox} } {
     return $data
   }
 }
-proc ::dropbox::search_size         { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] size] }
-proc ::dropbox::search_rev          { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] rev] }
-proc ::dropbox::search_bytes        { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] bytes] }
-proc ::dropbox::search_modified     { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] modified] }
-proc ::dropbox::search_path         { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] path] }
-proc ::dropbox::search_is_dir       { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] is_dir] }
-proc ::dropbox::search_icon         { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] icon] }
-proc ::dropbox::search_root         { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] root] }
-proc ::dropbox::search_mime_type    { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] mime_type] }
-proc ::dropbox::search_revision     { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] revision] }
-proc ::dropbox::search_thumb_exists { query {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $limit $deleted $root] thumb_exists] }
+proc ::dropbox::search_size         { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] size] }
+proc ::dropbox::search_rev          { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] rev] }
+proc ::dropbox::search_bytes        { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] bytes] }
+proc ::dropbox::search_modified     { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] modified] }
+proc ::dropbox::search_path         { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] path] }
+proc ::dropbox::search_is_dir       { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] is_dir] }
+proc ::dropbox::search_icon         { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] icon] }
+proc ::dropbox::search_root         { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] root] }
+proc ::dropbox::search_mime_type    { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] mime_type] }
+proc ::dropbox::search_revision     { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] revision] }
+proc ::dropbox::search_thumb_exists { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] thumb_exists] }
 
 ###
 ### Skeleton for GET and POST
