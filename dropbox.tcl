@@ -272,7 +272,9 @@ proc ::dropbox::search { query {limit 1000} {deleted false} {root dropbox} } {
   set dataj [::http::data $t]
   ::http::cleanup $t
   set data [::json::json2dict $dataj]
-  if { $httpc > 399 } {
+  if { $httpc == 406 } {
+    return -code error "Too many file entries."
+  } elseif { $httpc > 399 } {
     return -code error "HTTP Error $httpc"
   } elseif { [dict exists $data error] } {
     return -code error "Dropbox Error [dict get $data error] : [dict get $data error_description]"
