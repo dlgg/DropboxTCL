@@ -136,25 +136,19 @@ proc ::dropbox::init { {key load} {secret load} } {
     fconfigure $f -encoding utf-8
     set content [read -nonewline $f]
     close $f
-    foreach line [split $content "\n"] { lappend tmp([lindex $line 0]) [lrange $line 1 end] }
-    if {[info exists tmp(apikey)]} {
-      variable ::dropbox::apikey $tmp(apikey)
-    } elseif {(![string equal $secret "load"]) && (![string equal $key "load"])} {
+    ::dropbox::dbg "dropbox.dat read complete"
+    foreach line [split $content "\n"] { ::dropbox::dbg "loading in tmp array : [lindex $line 0] -> [lrange $line 1 end]"; lappend tmp([lindex $line 0]) [lrange $line 1 end] }
+    foreach data "apikey apisecret tok uid" {
+      ::dropbox::dbg "Populating $data"
+      if {[info exists tmp($data)]} { variable ::dropbox::$data $tmp($data) } else { return -code error "Dropbox data corrupted !" }
+    }
+    if {(![string equal $secret "load"]) && (![string equal $key "load"])} {
+      ::dropbox::dbg "Overriding apikey and apisecret"
       variable ::dropbox::apikey $key
-      # Write variables to database
-      ::dropbox::writeDB
-    } else {
-      return -code error "Dropbox data corrupted !"
-    }
-    if {[info exists tmp(apisecret)]} {
-      variable ::dropbox::apisecret $tmp(apisecret)
-    } elseif {(![string equal $secret "load"]) && (![string equal $key "load"])} {
       variable ::dropbox::apisecret $secret
-      # Write variables to database
-      ::dropbox::writeDB
-    } else {
-      return -code error "Dropbox data corrupted !"
     }
+    # Write variables to database
+    ::dropbox::writeDB
   }
   return
 }
