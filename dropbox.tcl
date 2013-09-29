@@ -194,9 +194,7 @@ proc ::dropbox::tokcheck { } {
   #      :     No tok only -> call ::dropbox::request_token
   #      :   YES -> call ::dropbox::request_token
   # Return an error if we don't have an access token
-  if {![info exists ::dropbox::tok]} {
-    return 1
-  }
+  if {![info exists ::dropbox::tok]} { return 1 }
   return 0
 }
 
