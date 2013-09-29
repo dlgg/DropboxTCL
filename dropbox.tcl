@@ -158,12 +158,12 @@ proc ::dropbox::request_token { } {
   return "https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=$::dropbox::apikey"
 }
 
-proc ::dropbox::authorize { token apikey apisecret } {
+proc ::dropbox::authorize { token } {
   ::dropbox::dbg "Authorizing SDK to dropbox"
   # This will call the Dropbox API to authorize the token and get the access token.
   # It will return the user Dropbox uid if all is OK.
   set url "$::dropbox::api/oauth2/token"
-  set params [::http::formatQuery code $token grant_type authorization_code client_id $apikey client_secret $apisecret ]
+  set params [::http::formatQuery code $token grant_type authorization_code client_id $::dropbox::apikey client_secret $::dropbox::apisecret ]
   set t [::http::config -useragent $::dropbox::agent]
   set t [::http::geturl $url -query $params -timeout $::dropbox::timeout]
   set httpc [::http::ncode $t]
