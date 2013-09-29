@@ -295,6 +295,29 @@ proc ::dropbox::search_mime_type    { query {path /} {limit 1000} {deleted false
 proc ::dropbox::search_revision     { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] revision] }
 proc ::dropbox::search_thumb_exists { query {path /} {limit 1000} {deleted false} {root dropbox} } { return [dict get [::dropbox::search $query $path $limit $deleted $root] thumb_exists] }
 
+proc ::dropbox::metadata { path {limit 10000} {hash {}} {list true} {deleted false} {root dropbox} {rev {}} } {
+  # TODO : hardcode limit to max 1000
+  if {[::dropbox::tokcheck] != 0} { return -code error "Token is not authorized or no token exist." }
+  set url "$::dropbox::api/metadata/$root/[url-encode $path]"
+  set params [::http::formatQuery access_token $::dropbox::tok locale $::dropbox::locale file_limit $limit hash $hash rev $rev include_deleted $deleted]
+  set t [::http::config -useragent $::dropbox::agent]
+  set t [::http::geturl $url -query $params -timeout $::dropbox::timeout]
+  set dataj [::http::data $t]
+  set httpc [::http::ncode $t]
+  set dataj [::http::data $t]
+  ::http::cleanup $t
+  set data [::json::json2dict $dataj]
+  if { $httpc == 406 } {
+    return -code error "Too many file entries."
+  } elseif { $httpc > 399 } {
+    return -code error "HTTP Error $httpc"
+  } elseif { [dict exists $data error] } {
+    return -code error "Dropbox Error [dict get $data error] : [dict get $data error_description]"
+  } else {
+    return $data
+  }
+}
+
 ###
 ### Skeleton for GET and POST
 ###
