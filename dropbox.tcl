@@ -262,6 +262,7 @@ proc ::dropbox::shares { path {shorturl true} {root dropbox} } {
 }
 
 proc ::dropbox::search { query {path /} {limit 1000} {deleted false} {root dropbox} } {
+  # TODO : hardcode limit to max 1000
   if {[::dropbox::tokcheck] != 0} { return -code error "Token is not authorized or no token exist." }
   set url "$::dropbox::api/search/$root/[url-encode $path]"
   set params [::http::formatQuery access_token $::dropbox::tok locale $::dropbox::locale query $query file_limit $limit include_deleted $deleted]
