@@ -266,6 +266,7 @@ proc ::dropbox::search { query {path /} {limit 1000} {deleted false} {root dropb
   if {[::dropbox::tokcheck] != 0} { return -code error "Token is not authorized or no token exist." }
   set url "$::dropbox::api/search/$root/[url-encode $path]"
   set params [::http::formatQuery access_token $::dropbox::tok locale $::dropbox::locale query $query file_limit $limit include_deleted $deleted]
+  ::dropbox::dbg "$url - $params"
   set t [::http::config -useragent $::dropbox::agent]
   set t [::http::geturl $url -query $params -timeout $::dropbox::timeout]
   set dataj [::http::data $t]
