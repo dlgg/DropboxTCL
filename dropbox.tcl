@@ -66,12 +66,11 @@ proc ::dropbox::url-encode {string} {
 }
 
 proc ::dropbox::url-decode {string} {
-  # rewrite "%20" back to space and protect \ from quoting another '\'
-  set string [string map [list "%20" { } "\\" "\\\\"] $string]
-  # prepare to process all %-escapes
-  regsub -all -- {%([A-Fa-f0-9][A-Fa-f0-9])} $string {\\u00\1} str
-  # process \u unicode mapped chars
-  return [subst -novar -nocommand $string]
+  set specialMap {"[" "%5B" "]" "%5D"}
+  set seqRE {%([0-9a-fA-F]{2})}
+  set replacement {[format "%c" [scan "\1" "%2x"]]}
+  set modStr [regsub -all $seqRE [string map $specialMap $str] $replacement]
+  return [encoding convertfrom utf-8 [subst -nobackslash -novariable $modStr]]
 }
 
 ###
