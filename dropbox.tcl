@@ -58,21 +58,11 @@ proc ::dropbox::dbg { msg } { if {$::dropbox::debug} {puts "== DropBox DEBUG == 
 ### Some procs for url encoding/decoding
 ###
 proc ::dropbox::url-encode {string} {
-  variable map
-  variable alphanumeric a-zA-Z0-9
-  for {set i 0} {$i <= 256} {incr i} {
-    set c [format %c $i]
-    if {![string match \[$alphanumeric\] $c]} {
-      set map($c) %[format %.2x $i]
-    }
-  }
-  # These are handled specially
-  array set map { " " "%20" \n %0d%0a }
-  # start of encoding
-  regsub -all \[^$alphanumeric\] $string {$map(&)} string
-  # This quotes cases like $map([) or $map($) => $map(\[) ...
-  regsub -all {[][{})\\]\)} $string {\\&} string
-  return [subst -nocommand $string]
+  set uStr [encoding convertto utf-8 $string]
+  set chRE {[^-A-Za-z0-9._~\n]};
+  set replacement {%[format "%02X" [scan "\\\0" "%c"]]}
+  set error ""; set retret ""
+  return [string map {"\n" "%0A"} [subst [regsub -all $chRE $uStr $replacement]]]
 }
 
 proc ::dropbox::url-decode {string} {
